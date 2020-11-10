@@ -1,8 +1,11 @@
 module Main exposing (Model(..), Msg(..), init, main, subscriptions, update, view)
 
 import Browser
-import Html exposing (Html, pre, text)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Http
+import Json.Decode exposing (Decoder, field, string)
 
 
 
@@ -31,10 +34,7 @@ type Model
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( Loading
-    , Http.get
-        { url = "https://elm-lang.org/assets/public-opinion.txt"
-        , expect = Http.expectString GotText
-        }
+    , getQOD
     )
 
 
@@ -43,13 +43,17 @@ init _ =
 
 
 type Msg
-    = GotText (Result Http.Error String)
+    = GotQuote (Result Http.Error String)
+    | AgainPlease
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotText result ->
+        AgainPlease ->
+            ( Loading, getQOD )
+
+        GotQuote result ->
             case result of
                 Ok fullText ->
                     ( Success fullText, Cmd.none )
@@ -81,4 +85,24 @@ view model =
             text "Loading..."
 
         Success fullText ->
-            pre [] [ text fullText ]
+            div []
+                [ button [ onClick AgainPlease, style "display" "block" ] [ text "Load another please!" ]
+                , text fullText
+                ]
+
+
+
+-- HTTP
+
+
+getQOD : Cmd Msg
+getQOD =
+    Http.get
+        { url = "https://quotes.rest/qod?language=en"
+        , expect = Http.expectJson GotQuote quoteDecoder
+        }
+
+
+quoteDecoder : Decoder String
+quoteDecoder =
+    field "contents" (field "quote" string)
