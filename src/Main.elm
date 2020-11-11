@@ -1,16 +1,13 @@
 module Main exposing (Model(..), Msg(..), init, main, subscriptions, update, view)
 
---import Html exposing (..)
---import Html.Attributes exposing (..)
---import Html.Events exposing (..)
-
 import Browser
 import Element exposing (..)
+import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Input as Input
 import Http
-import Json.Decode exposing (Decoder, field, index, string)
+import Json.Decode exposing (Decoder, field, index, map3, string)
 
 
 
@@ -30,10 +27,17 @@ main =
 -- MODEL
 
 
+type alias Quote =
+    { quote : String
+    , author : String
+    , image : String
+    }
+
+
 type Model
     = Failure String
     | Loading
-    | Success String
+    | Success Quote
 
 
 init : () -> ( Model, Cmd Msg )
@@ -48,7 +52,7 @@ init _ =
 
 
 type Msg
-    = GotQuote (Result Http.Error String)
+    = GotQuote (Result Http.Error Quote)
     | AgainPlease
 
 
@@ -60,8 +64,8 @@ update msg model =
 
         GotQuote result ->
             case result of
-                Ok fullText ->
-                    ( Success fullText, Cmd.none )
+                Ok quote ->
+                    ( Success quote, Cmd.none )
 
                 Err err ->
                     case err of
@@ -107,11 +111,30 @@ view model =
                 Loading ->
                     text "Loading..."
 
-                Success fullText ->
-                    column [ centerX, centerY, spacing 4 ]
-                        [ Input.button [ centerX, Border.solid, Border.width 1, Border.rounded 8 ] { onPress = Just AgainPlease, label = el [ padding 4 ] (text "Load another please!") }
-                        , text fullText
+                Success quote ->
+                    el
+                        [ height fill
+                        , width fill
+                        , behindContent
+                            (image
+                                [ centerX, centerY, height fill, width fill ]
+                                { src = quote.image
+                                , description = ""
+                                }
+                            )
                         ]
+                        (column
+                            [ spacing 4
+                            , Background.color (rgba 1 1 1 0.65)
+                            , padding 4
+                            , centerX
+                            , centerY
+                            ]
+                            [ text "Today's quote:"
+                            , text quote.quote
+                            , el [ alignRight ] (text quote.author)
+                            ]
+                        )
             )
         ]
     }
@@ -129,6 +152,9 @@ getQOD =
         }
 
 
-quoteDecoder : Decoder String
+quoteDecoder : Decoder Quote
 quoteDecoder =
-    field "contents" (field "quotes" (index 0 (field "quote" string)))
+    map3 Quote
+        (field "contents" (field "quotes" (index 0 (field "quote" string))))
+        (field "contents" (field "quotes" (index 0 (field "author" string))))
+        (field "contents" (field "quotes" (index 0 (field "background" string))))
