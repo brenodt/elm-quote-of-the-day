@@ -5,6 +5,7 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
+import Element.Font as Font
 import Element.Input as Input
 import Http
 import Json.Decode exposing (Decoder, field, index, map3, string)
@@ -130,14 +131,52 @@ view model =
                             , centerX
                             , centerY
                             ]
-                            [ text "Today's quote:"
-                            , text quote.quote
-                            , el [ alignRight ] (text quote.author)
+                            [ renderTitle
+                            , renderQuote quote.quote
+                            , renderAuthor quote.author
                             ]
                         )
             )
         ]
     }
+
+
+renderTitle : Element msg
+renderTitle =
+    el
+        [ centerX
+        , padding 12
+        , Font.size 32
+        , Font.family
+            [ Font.external
+                { name = "Merriweather"
+                , url = "https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap"
+                }
+            ]
+        ]
+        (text "Today's quote:")
+
+
+renderQuote : String -> Element msg
+renderQuote q =
+    el
+        [ padding 4
+        , Font.size 26
+        , Font.family
+            [ Font.external { name = "Libre Franklin", url = "https://fonts.googleapis.com/css2?family=Libre+Franklin&display=swap" } ]
+        ]
+        (text q)
+
+
+renderAuthor : String -> Element msg
+renderAuthor a =
+    el
+        [ alignRight
+        , Font.italic
+        , Font.family
+            [ Font.external { name = "Libre Franklin Italic", url = "https://fonts.googleapis.com/css2?family=Libre+Franklin:ital@1&display=swap" } ]
+        ]
+        (text ("-  " ++ a))
 
 
 
