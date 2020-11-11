@@ -127,6 +127,7 @@ view model =
                         (column
                             [ spacing 4
                             , Background.color (rgba 1 1 1 0.65)
+                            , Border.rounded 12
                             , padding 4
                             , centerX
                             , centerY
@@ -146,6 +147,7 @@ renderTitle =
     el
         [ centerX
         , padding 12
+        , Font.underline
         , Font.size 32
         , Font.family
             [ Font.external
