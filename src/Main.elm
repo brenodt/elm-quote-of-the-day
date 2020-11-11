@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string)
+import Json.Decode exposing (Decoder, field, index, string)
 
 
 
@@ -26,7 +26,7 @@ main =
 
 
 type Model
-    = Failure
+    = Failure String
     | Loading
     | Success String
 
@@ -58,8 +58,22 @@ update msg model =
                 Ok fullText ->
                     ( Success fullText, Cmd.none )
 
-                Err _ ->
-                    ( Failure, Cmd.none )
+                Err err ->
+                    case err of
+                        Http.BadUrl e ->
+                            ( Failure ("Bad URL: " ++ e), Cmd.none )
+
+                        Http.Timeout ->
+                            ( Failure ("Timout reaching server: " ++ String.fromFloat e), Cmd.none )
+
+                        Http.NetworkError ->
+                            ( Failure ("No internet connection: " ++ String.fromFloat e), Cmd.none )
+
+                        Http.BadStatus e ->
+                            ( Failure ("Something went wrong with the request: " ++ String.fromInt e), Cmd.none )
+
+                        Http.BadBody e ->
+                            ( Failure ("Bad Body: " ++ e), Cmd.none )
 
 
 
@@ -78,8 +92,8 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     case model of
-        Failure ->
-            text "Unable to load quote"
+        Failure err ->
+            text ("Unable to load quote.\n" ++ err)
 
         Loading ->
             text "Loading..."
@@ -105,4 +119,4 @@ getQOD =
 
 quoteDecoder : Decoder String
 quoteDecoder =
-    field "contents" (field "quote" string)
+    field "contents" (field "quotes" (index 0 (field "quote" string)))
