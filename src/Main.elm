@@ -1,9 +1,14 @@
 module Main exposing (Model(..), Msg(..), init, main, subscriptions, update, view)
 
+--import Html exposing (..)
+--import Html.Attributes exposing (..)
+--import Html.Events exposing (..)
+
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Element exposing (..)
+import Element.Border as Border
+import Element.Events exposing (onClick)
+import Element.Input as Input
 import Http
 import Json.Decode exposing (Decoder, field, index, string)
 
@@ -13,7 +18,7 @@ import Json.Decode exposing (Decoder, field, index, string)
 
 
 main =
-    Browser.element
+    Browser.document
         { init = init
         , update = update
         , subscriptions = subscriptions
@@ -89,20 +94,27 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    case model of
-        Failure err ->
-            text ("Unable to load quote.\n" ++ err)
+    { title = "Quote of the day"
+    , body =
+        [ layout
+            []
+            (case model of
+                Failure err ->
+                    text ("Unable to load quote.\n" ++ err)
 
-        Loading ->
-            text "Loading..."
+                Loading ->
+                    text "Loading..."
 
-        Success fullText ->
-            div []
-                [ button [ onClick AgainPlease, style "display" "block" ] [ text "Load another please!" ]
-                , text fullText
-                ]
+                Success fullText ->
+                    column [ centerX, centerY, spacing 4 ]
+                        [ Input.button [ centerX, Border.solid, Border.width 1, Border.rounded 8 ] { onPress = Just AgainPlease, label = el [ padding 4 ] (text "Load another please!") }
+                        , text fullText
+                        ]
+            )
+        ]
+    }
 
 
 
