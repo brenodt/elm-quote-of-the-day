@@ -174,6 +174,7 @@ renderAuthor : String -> Element msg
 renderAuthor a =
     el
         [ alignRight
+        , padding 4
         , Font.italic
         , Font.family
             [ Font.external { name = "Libre Franklin Italic", url = "https://fonts.googleapis.com/css2?family=Libre+Franklin:ital@1&display=swap" } ]
