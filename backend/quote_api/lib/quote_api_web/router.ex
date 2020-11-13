@@ -13,6 +13,10 @@ defmodule QuoteApiWeb.Router do
     plug(:accepts, ["html"])
   end
 
+  pipeline :auth do
+    plug QuoteApiWeb.Auth.Pipeline
+  end
+
   scope "/", QuoteApiWeb do
     pipe_through :browser
     get "/", DefaultController, :index
@@ -20,9 +24,13 @@ defmodule QuoteApiWeb.Router do
 
   scope "/api", QuoteApiWeb do
     pipe_through :api
-    resources "/quotes", QuoteController, except: [:new, :edit]
     post "/users/signup", UserController, :create
     post "/users/signin", UserController, :signin
+  end
+
+  scope "/api", QuoteApiWeb do
+    pipe_through [:api, :auth]
+    resources "/quotes", QuoteController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development
