@@ -167,7 +167,7 @@ renderQuote q =
         , Font.family
             [ Font.external { name = "Libre Franklin", url = "https://fonts.googleapis.com/css2?family=Libre+Franklin&display=swap" } ]
         ]
-        (text q)
+        (paragraph [] [ text q ])
 
 
 renderAuthor : String -> Element msg
