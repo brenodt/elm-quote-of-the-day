@@ -21,6 +21,8 @@ defmodule QuoteApiWeb.Router do
   scope "/api", QuoteApiWeb do
     pipe_through :api
     resources "/quotes", QuoteController, except: [:new, :edit]
+    post "/users/signup", UserController, :create
+    post "/users/signin", UserController, :signin
   end
 
   # Enables LiveDashboard only for development

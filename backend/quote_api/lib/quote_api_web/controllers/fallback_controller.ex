@@ -21,4 +21,10 @@ defmodule QuoteApiWeb.FallbackController do
     |> put_view(QuoteApiWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:unauthorized)
+    |> render(QuoteApiWeb.ErrorView, :"401")
+  end
 end
