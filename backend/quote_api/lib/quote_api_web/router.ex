@@ -18,6 +18,11 @@ defmodule QuoteApiWeb.Router do
     get "/", DefaultController, :index
   end
 
+  scope "/api", QuoteApiWeb do
+    pipe_through :api
+    resources "/quotes", QuoteController, except: [:new, :edit]
+  end
+
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put
